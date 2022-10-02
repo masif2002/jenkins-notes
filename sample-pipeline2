@@ -1,0 +1,84 @@
+pipeline {
+    agent none
+    stages {
+        stage('Build Dev') {
+            agent {
+                label {
+                    label 'devv'
+                    customWorkspace "/opt/go-app"
+                }
+            }
+            steps {
+                sh 'git pull'
+            }
+        }
+        
+        stage('Test Dev') {
+            agent {
+                label {
+                    label 'devv'
+                    customWorkspace "/opt/go-app"
+                }
+            }
+            steps {
+                sh 'go test ./...'
+            }
+        }
+        
+        stage('Deploy Dev') {
+            agent {
+                label {
+                    label 'devv'
+                    customWorkspace "/opt/go-app"
+                }
+            }
+            steps {
+                script {
+                    withEnv ( ['JENKINS_NODE_COOKIE=do_not_kill'] ) {
+                        sh 'go run main.go &'
+                    }
+                }
+            }
+        }
+        
+        stage('Build Prod') {
+            agent {
+                label {
+                    label 'prodd'
+                    customWorkspace "/opt/go-app"
+                }
+            }
+            steps {
+                sh 'git pull'
+            }
+        }
+        
+        stage('Test Prod') {
+            agent {
+                label {
+                    label 'prodd'
+                    customWorkspace "/opt/go-app"
+                }
+            }
+            steps {
+                sh 'go test ./...'
+            }
+        }
+        
+        stage('Deploy Prod') {
+            agent {
+                label {
+                    label 'prodd'
+                    customWorkspace "/opt/go-app"
+                }
+            }
+            steps {
+                script {
+                    withEnv ( ['JENKINS_NODE_COOKIE=do_not_kill'] ) {
+                        sh 'go run main.go &'
+                    }
+                }
+            }
+        }
+    }    
+}
